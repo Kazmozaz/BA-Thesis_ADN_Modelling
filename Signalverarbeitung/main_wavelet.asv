@@ -1,0 +1,143 @@
+ % Evaluation of high-resolution measurement data of the research project
+% with Fast Fourier Transform
+% "self-regulating effect"
+% 
+% 24.06.2023 - Verion 1 - Kareem Hassan (IFK)
+
+clc
+clear all
+
+%% Measurement data from mat-file
+
+load('Z:\Daten\Netzselbstregeleffekt\UW_Eppingen\UW_Eppingen_101_20170323_10240HzOszilloskop.mat')
+
+ii_measurement = 99; % choose entry of the measurement-struct single_data 
+
+
+t = single_data(ii_measurement).t; % watch out for wrong time-values, frequency must be around 50 Hz
+
+%t = single_data(ii_measurement).t*2;
+
+
+
+U12 = single_data(ii_measurement).U12.*1e-3; % [kV]
+U23 = single_data(ii_measurement).U23.*1e-3; % [kV]
+U31 = single_data(ii_measurement).U31.*1e-3; % [kV]
+
+I1 = single_data(ii_measurement).I1; % [A]
+I2 = single_data(ii_measurement).I2; % [A]
+I3 = single_data(ii_measurement).I3; % [A]
+
+
+%SFT
+% Specify the parameters of a signal with a sampling frequency of 1 kHz and a signal duration of 1.5 second                    
+T = (t(2)-t(1));   % Sampling period 
+Fs = 1/T;          % Sampling frequency
+L = length(t);     % Length of signal
+
+For the wavelet analysis, MATLAB has a built-in function `cwt` which performs a continuous wavelet transform. Similar to spectrogram, you can visualize the wavelet transform with `cwt`.
+
+Here's an example with your data:
+
+```MATLAB
+figure;
+
+% Choose a wavelet. 'amor' specifies the Morlet wavelet
+waveletName = 'amor';
+
+% Plot for Current I1
+subplot(3,2,1);
+cwt(I1, 'amor', Fs); 
+title('CWT of Current I1');
+
+% Plot for Current I2
+subplot(3,2,3);
+cwt(I2, 'amor', Fs); 
+title('CWT of Current I2');
+
+% Plot for Current I3
+subplot(3,2,5);
+cwt(I3, 'amor', Fs); 
+title('CWT of Current I3');
+
+% Plot for Voltage U12
+subplot(3,2,2);
+cwt(U12, 'amor', Fs); 
+title('CWT of Voltage U12');
+
+% Plot for Voltage U23
+subplot(3,2,4);
+cwt(U23, 'amor', Fs); 
+title('CWT of Voltage U23');
+
+% Plot for Voltage U31
+subplot(3,2,6);
+cwt(U31, 'amor', Fs); 
+title('CWT of Voltage U31');
+```
+
+In this code, 'amor' stands for Morlet wavelet, which is commonly used for its good balance between time and frequency localization. You can change 'amor' to any other wavelet name as per your requirements.
+
+Please note, this is a basic code for wavelet transform visualization, and wavelet analysis can be more complex depending upon the nature of your data and specific requirements. For a more detailed analysis, you may need to adjust the parameters and use more advanced features of the `cwt` function.
+
+current1 = I1;
+current2 = I2;
+current3 = I3;
+
+voltage1 = U12;
+voltage2 = U23;
+voltage3 = U31;
+
+%Wavelet Transform Syntax to Apply on Signal:
+% [c,l] = wavedec(x,n,wname);
+% x = signal
+% wname = name of wavelet type
+% c = Output wavelet decomposition vector
+% l = number of coefficients by level
+
+[cI1, LI1] = wavedec(current1, 1, 'db4');
+[cI2, LI2] = wavedec(current2, 1, 'db4');
+[cI3, LI3] = wavedec(current3, 1, 'db4');
+
+[cU12, LU12] = wavedec(voltage1, 1, 'db4');
+[cU23, LU23] = wavedec(voltage2, 1, 'db4');
+[cU31, LU31] = wavedec(voltage3, 1, 'db4');
+
+% D = detcoef(C,L,N); //func which obtains the detailed coef of signal
+% c = output wavelet decomposition vector
+% l = nuber of coefficients by level
+% n = wavelet layer (default=1)
+% D = Extracts the detail of coef at coarset scale from [c,l]
+
+coef_I1 = detcoef(cI1, LI1, 1); 
+coef_I2 = detcoef(cI2, LI2, 1);
+coef_I3 = detcoef(cI3, LI3, 1);
+
+coef_U12 = detcoef(cU12, LU12, 1); 
+coef_U23 = detcoef(cU23, LU23, 1);
+coef_U31 = detcoef(cU31, LU31, 1);
+
+%max coef
+I1_max = max(coef_I1)
+I2_max = max(coef_I2)
+I3_max = max(coef_I3)
+
+U12_max = max(coef_U12)
+U23_max = max(coef_U23)
+U31_max = max(coef_U31)
+
+%display max coefficients
+disp([I1_max])
+commandwindow
+disp([I2_max])
+commandwindow
+disp([I3_max])
+commandwindow
+
+disp([U12_max])
+commandwindow
+disp([U23_max])
+commandwindow
+disp([U31_max])
+commandwindow
+

@@ -1,0 +1,95 @@
+% Evaluation of high-resolution measurement data of the research project
+% with Fast Fourier Transform
+% "self-regulating effect"
+% 
+% 24.06.2023 - Verion 1 - Kareem Hassan (IFK)
+
+clc
+clear all
+
+%% Measurement data from mat-file
+
+load('Z:\Daten\Netzselbstregeleffekt\UW_Schickhardtschule\UW_Schickhardtschule_113_20180913_10240HzOszilloskop.mat')
+
+ii_measurement = 99; % choose entry of the measurement-struct single_data 
+
+t = single_data(ii_measurement).t; % watch out for wrong time-values, frequency must be around 50 Hz
+
+U12 = single_data(ii_measurement).U12.*1e-3; % [kV]
+U23 = single_data(ii_measurement).U23.*1e-3; % [kV]
+U31 = single_data(ii_measurement).U31.*1e-3; % [kV]
+
+I1 = single_data(ii_measurement).I1; % [A]
+I2 = single_data(ii_measurement).I2; % [A]
+I3 = single_data(ii_measurement).I3; % [A]
+
+%SFT
+% Specify the parameters of a signal with a sampling frequency of 1 kHz and a signal duration of 1.5 second                    
+T = (t(2)-t(1));   % Sampling period 
+Fs = 1/T;          % Sampling frequency
+L = length(t);     % Length of signal
+
+figure;
+
+% Choose a wavelet. 'amor' specifies the Morlet wavelet
+waveletName = 'amor';
+
+% Plot for Current I1
+subplot(3,2,1);
+[cfs1,f1] = cwt(I1, waveletName, Fs);
+mesh(t,f1,abs(cfs1)); axis tight; set(gca, 'YScale', 'log');
+%surf(t,f1,abs(cfs1)); axis tight; set(gca, 'YScale', 'log');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+zlabel('Magnitude');
+title('CWT of Current I1');
+
+% Plot for Current I2
+subplot(3,2,3);
+[cfs2,f2] = cwt(I2, waveletName, Fs);
+mesh(t,f2,abs(cfs2)); axis tight; set(gca, 'YScale', 'log');
+%surf(t,f2,abs(cfs2)); axis tight; set(gca, 'YScale', 'log');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+zlabel('Magnitude');
+title('CWT of Current I2');
+
+% Plot for Current I3
+subplot(3,2,5);
+[cfs3,f3] = cwt(I3, waveletName, Fs);
+mesh(t,f3,abs(cfs3)); axis tight; set(gca, 'YScale', 'log');
+%surf(t,f3,abs(cfs3)); axis tight; set(gca, 'YScale', 'log');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+zlabel('Magnitude');
+title('CWT of Current I3');
+
+% Plot for Voltage U12
+subplot(3,2,2);
+[cfs4,f4] = cwt(U12, waveletName, Fs);
+mesh(t,f4,abs(cfs4)); axis tight; set(gca, 'YScale', 'log');
+%surf(t,f4,abs(cfs4)); axis tight; set(gca, 'YScale', 'log');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+zlabel('Magnitude');
+title('CWT of Voltage U12');
+
+% Plot for Voltage U23
+subplot(3,2,4);
+[cfs5,f5] = cwt(U23, waveletName, Fs);
+mesh(t,f5,abs(cfs5)); axis tight; set(gca, 'YScale', 'log');
+%surf(t,f5,abs(cfs5)); axis tight; set(gca, 'YScale', 'log');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+zlabel('Magnitude');
+title('CWT of Voltage U23');
+
+% Plot for Voltage U31
+subplot(3,2,6);
+[cfs6,f6] = cwt(U31, waveletName, Fs);
+mesh(t,f6,abs(cfs6)); axis tight; set(gca, 'YScale', 'log');
+%surf(t,f6,abs(cfs6)); axis tight; set(gca, 'YScale', 'log');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+zlabel('Magnitude');
+title('CWT of Voltage U31');
